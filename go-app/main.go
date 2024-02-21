@@ -23,6 +23,10 @@ type Appointment struct {
 	ContactPersonName     string `json:"contactPersonName"`
 	ContactPersonKana     string `json:"contactPersonKana"`
 	URL                   string `json:"url"`
+	Place                 string `json:"place"`
+	AppointmentData       string `json:"appointmentData"`
+	History               string `json:"history"`
+	Goal                  int    `json:"goal"`
 }
 
 func getAppointments(w http.ResponseWriter, r *http.Request) {
@@ -54,6 +58,10 @@ func getAppointments(w http.ResponseWriter, r *http.Request) {
 			&a.ContactPersonName,
 			&a.ContactPersonKana,
 			&a.URL,
+			&a.Place,
+			&a.AppointmentData,
+			&a.History,
+			&a.Goal,
 		); err != nil {
 			log.Fatal(err)
 		}

@@ -14,6 +14,10 @@ interface Appointment {
   contactPersonName: string;
   contactPersonKana: string;
   url: string;
+  place: string;
+  appointmentData: string;
+  history: string;
+  goal: number;
 }
 
 function App() {
