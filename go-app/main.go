@@ -29,7 +29,17 @@ type Appointment struct {
 	Goal                  int    `json:"goal"`
 }
 
+func setupCORS(w *http.ResponseWriter, req *http.Request) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+}
+
 func getAppointments(w http.ResponseWriter, r *http.Request) {
+	setupCORS(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
 	db, err := sql.Open("mysql", "root:rootroot@/management_system")
 	if err != nil {
 		log.Fatal(err)
@@ -74,13 +84,74 @@ func getAppointments(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	json.NewEncoder(w).Encode(appointments)
+}
+
+func createAppointment(w http.ResponseWriter, r *http.Request) {
+	setupCORS(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
+
+	var newAppointment Appointment
+	err := json.NewDecoder(r.Body).Decode(&newAppointment)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	db, err := sql.Open("mysql", "root:rootroot@/management_system")
+	if err != nil {
+		log.Printf("Database connection failed: %v", err)
+		http.Error(w, "Database connection failed", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	stmt, err := db.Prepare(`
+		INSERT INTO appointments (
+			NextAppointmentDate, ContractedSales, CurrentContractCount, CompanyName, 
+			CompanyNameKana, Capital, EmployeesCount, AppointmentDepartment,
+			ContactPersonName, ContactPersonKana, URL, Place, AppointmentData,
+			History, Goal
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		newAppointment.NextAppointmentDate,
+		newAppointment.ContractedSales,
+		newAppointment.CurrentContractCount,
+		newAppointment.CompanyName,
+		newAppointment.CompanyNameKana,
+		newAppointment.Capital,
+		newAppointment.EmployeesCount,
+		newAppointment.AppointmentDepartment,
+		newAppointment.ContactPersonName,
+		newAppointment.ContactPersonKana,
+		newAppointment.URL,
+		newAppointment.Place,
+		newAppointment.AppointmentData,
+		newAppointment.History,
+		newAppointment.Goal,
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }
 
 func main() {
 	http.HandleFunc("/", getAppointments)
+	http.HandleFunc("/appointments/create", createAppointment)
 	fmt.Println("Server is running on port 8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
-
-//機能Done
