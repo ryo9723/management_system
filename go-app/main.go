@@ -124,7 +124,7 @@ func createAppointment(w http.ResponseWriter, r *http.Request) {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(
+	result, err := stmt.Exec(
 		newAppointment.NextAppointmentDate,
 		newAppointment.ContractedSales,
 		newAppointment.CurrentContractCount,
@@ -145,8 +145,16 @@ func createAppointment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	newID, err := result.LastInsertId() // 新しい予約のIDを取得
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	newAppointment.ID = int(newID) // 新しい予約にIDをセット
 
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(newAppointment)
 }
 
 func main() {

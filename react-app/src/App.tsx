@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Appointment } from './types';
 import { AxiosError } from 'axios';
+import Modal from 'react-modal';
+import AppointmentForm from './CreateAppointment';
 
 const App = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     nextAppointmentDate: '',
@@ -36,6 +40,19 @@ const App = () => {
         console.error('There was an error!', error);
       });
   }, []);
+
+  const openModal = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
+
+  const OpenCreateAppointmentModal = () => {
+    setModalIsOpen(true);
+  }
 
   // フォームの入力値を更新する
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,20 +122,27 @@ const App = () => {
     }
   };
 
-
   // テーブルの表示
   return (
     <div>
+      <button onClick={OpenCreateAppointmentModal}>新規登録</button>
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <table>
-          <thead>
+        <table style={bodyStyle}>
+          <thead style={headerStyle}>
             <tr>
-              <th>Next Appointment Date</th>
-              <th>Contracted Sales</th>
-              <th>Current Contract Count</th>
-              {/* ...他のヘッダー */}
+              <th>次回アポ日付</th>
+              <th>契約した売上</th>
+              <th>現在の契約本数</th>
+              <th>会社名</th>
+              <th>ふりがな</th>
+              <th>資本金</th>
+              <th>従業員数</th>
+              <th>アポ先部署</th>
+              <th>担当者名</th>
+              <th>ふりがな</th>
+              <th>URL</th>
             </tr>
           </thead>
           <tbody>
@@ -127,172 +151,94 @@ const App = () => {
                 <td>{appointment.nextAppointmentDate}</td>
                 <td>{appointment.contractedSales}</td>
                 <td>{appointment.currentContractCount}</td>
-                {/* ...他のデータ */}
+                <td>{appointment.companyName}</td>
+                <td>{appointment.companyNameKana}</td>
+                <td>{appointment.capital}</td>
+                <td>{appointment.employeesCount}</td>
+                <td>{appointment.appointmentDepartment}</td>
+                <td>{appointment.contactPersonName}</td>
+                <td>{appointment.contactPersonKana}</td>
+                <td><a href={appointment.url} target="_blank" rel="noopener noreferrer">
+                {appointment.url}
+              </a></td>
+              <button
+                onClick={() => openModal(appointment)}
+                style={buttonStyle}>詳細情報</button>
               </tr>
             ))}
           </tbody>
         </table>
       )}
-      {/* 新規登録フォーム */}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>
-            次アポ日付
-            <input
-              name="nextAppointmentDate"
-              value={form.nextAppointmentDate}
-              onChange={handleChange}
-              type="date"
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            契約した売上
-            <input
-              name="contractedSales"
-              value={form.contractedSales}
-              onChange={handleChange}
-              type="number"
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            契約本数
-            <input
-              name="currentContractCount"
-              type="number"
-              value={form.currentContractCount}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            会社名
-            <input
-              name="companyName"
-              type="text"
-              value={form.companyName}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            ふりがな
-            <input
-              name="companyNameKana"
-              type="text"
-              value={form.companyNameKana}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            資本金
-            <input
-              name="capital"
-              type="number"
-              value={form.capital}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            従業員数
-            <input
-              name="employeesCount"
-              type="number"
-              value={form.employeesCount}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            アポ部署
-            <input
-              name="appointmentDepartment"
-              type="text"
-              value={form.appointmentDepartment}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            対応者
-            <input
-              name="contactPersonName"
-              type="text"
-              value={form.contactPersonName}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            ふりがな
-            <input
-              name="contactPersonKana"
-              type="text"
-              value={form.contactPersonKana}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            URL
-            <input
-              name="url"
-              type="text"
-              value={form.url}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            所在地
-            <input
-              name="place"
-              type="text"
-              value={form.place}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            アポ内容
-            <input
-              name="appointmentData"
-              type="text"
-              value={form.appointmentData}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            ゴール
-            <input
-              name="goal"
-              type="number"
-              value={form.goal}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-        <button type="submit">新規登録</button>
-      </form>
+      <Modal
+      isOpen={modalIsOpen}
+      onRequestClose={closeModal}
+      style={customStyles}
+      contentLabel='Appointment Detail'
+      >
+        {selectedAppointment && (
+          <div>
+            <h2>詳細データ</h2>
+            <p>会社所在地：{selectedAppointment.place}</p>
+            <p>アポ内容：{selectedAppointment.appointmentData}</p>
+            <p>商談履歴：{selectedAppointment.history}</p>
+            <p>ToDoリスト</p>
+            <p>目標数値：¥{selectedAppointment.goal.toLocaleString()}</p>
+            <button onClick={closeModal}>閉じる</button>
+          </div>
+        )}
+      </Modal>
+        {/* 新規登録フォーム */}
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        style={customStyles}
+        contentLabel='CreateAppointment'
+      >
+      <AppointmentForm
+        setAppointments={setAppointments}
+        closeModal={closeModal}
+      />
+      </Modal>
     </div>
   );
 };
 
 export default App;
+
+const bodyStyle = {
+  fontSize: '0.8rem',
+}
+
+const headerStyle = {
+  backgroundColor: 'green',
+  color: 'white',
+}
+
+const buttonStyle = {
+  margin: "3px",
+  backgroundColor: "gray",
+  color: "#fff",
+  border: "0px",
+  cursor: "pointer"
+}
+
+const customStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    border: '1px solid #ccc',
+    background: '#fff',
+    overflow: 'auto',
+    webkitOverflowScrolling: 'touch',
+    borderRadius: '4px',
+    outline: 'none',
+    padding: '40px'
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.75)'
+  }
+};
