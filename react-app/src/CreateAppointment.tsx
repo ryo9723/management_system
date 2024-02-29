@@ -117,158 +117,158 @@ const AppointmentForm: React.FC<Props> = ({ setAppointments, closeModal }) => {
 
     <form onSubmit={handleSubmit}>
         <div>
-          <label>
-            次アポ日付
+          <p>
+            次アポ日付：
             <input
               name="nextAppointmentDate"
               value={form.nextAppointmentDate}
               onChange={handleChange}
               type="date"
             />
-          </label>
+          </p>
         </div>
         <div>
-          <label>
-            契約した売上
+          <p>
+            契約した売上：¥
             <input
               name="contractedSales"
               value={form.contractedSales}
               onChange={handleChange}
               type="number"
             />
-          </label>
+          </p>
         </div>
         <div>
-          <label>
-            契約本数
+          <p>
+            契約本数：
             <input
               name="currentContractCount"
               type="number"
               value={form.currentContractCount}
               onChange={handleChange}
-            />
-          </label>
+            />本
+          </p>
         </div>
         <div>
-          <label>
-            会社名
+          <p>
+            会社名：
             <input
               name="companyName"
               type="text"
               value={form.companyName}
               onChange={handleChange}
             />
-          </label>
+          </p>
         </div>
         <div>
-          <label>
-            ふりがな
+          <p>
+            ふりがな：
             <input
               name="companyNameKana"
               type="text"
               value={form.companyNameKana}
               onChange={handleChange}
             />
-          </label>
+          </p>
         </div>
         <div>
-          <label>
-            資本金
+          <p>
+            資本金：¥
             <input
               name="capital"
               type="number"
               value={form.capital}
               onChange={handleChange}
             />
-          </label>
+          </p>
         </div>
         <div>
-          <label>
-            従業員数
+          <p>
+            従業員数：
             <input
               name="employeesCount"
               type="number"
               value={form.employeesCount}
               onChange={handleChange}
-            />
-          </label>
+            />人
+          </p>
         </div>
         <div>
-          <label>
-            アポ部署
+          <p>
+            アポ部署：
             <input
               name="appointmentDepartment"
               type="text"
               value={form.appointmentDepartment}
               onChange={handleChange}
-            />
-          </label>
+            />部
+          </p>
         </div>
         <div>
-          <label>
-            対応者
+          <p>
+            対応者：
             <input
               name="contactPersonName"
               type="text"
               value={form.contactPersonName}
               onChange={handleChange}
             />
-          </label>
+          </p>
         </div>
         <div>
-          <label>
-            ふりがな
+          <p>
+            ふりがな：
             <input
               name="contactPersonKana"
               type="text"
               value={form.contactPersonKana}
               onChange={handleChange}
             />
-          </label>
+          </p>
         </div>
         <div>
-          <label>
-            URL
+          <p>
+            URL：
             <input
               name="url"
               type="text"
               value={form.url}
               onChange={handleChange}
             />
-          </label>
+          </p>
         </div>
         <div>
-          <label>
-            所在地
+          <p>
+            所在地：
             <input
               name="place"
               type="text"
               value={form.place}
               onChange={handleChange}
             />
-          </label>
+          </p>
         </div>
         <div>
-          <label>
-            アポ内容
+          <p>
+            アポ内容：
             <input
               name="appointmentData"
               type="text"
               value={form.appointmentData}
               onChange={handleChange}
             />
-          </label>
+          </p>
         </div>
         <div>
-          <label>
-            ゴール
+          <p>
+            ゴール：¥
             <input
               name="goal"
               type="number"
               value={form.goal}
               onChange={handleChange}
             />
-          </label>
+          </p>
         </div>
         <button type="submit">新規登録</button>
       </form>

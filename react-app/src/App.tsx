@@ -325,14 +325,6 @@ const headerStyle = {
   color: 'white',
 }
 
-const buttonStyle = {
-  margin: "3px",
-  backgroundColor: "gray",
-  color: "#fff",
-  border: "0px",
-  cursor: "pointer"
-}
-
 const customStyles = {
   content: {
     top: '50%',
