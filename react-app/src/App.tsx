@@ -4,10 +4,13 @@ import { Appointment } from './types';
 import { AxiosError } from 'axios';
 import Modal from 'react-modal';
 import AppointmentForm from './CreateAppointment';
+import EditAppointmentForm from './EditAppointment';
 
 const App = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+  const [detailModalIsOpen, setDetailModalIsOpen] = useState<boolean>(false);
+  const [createModalIsOpen, setCreateModalIsOpen] = useState<boolean>(false);
+  const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -43,15 +46,29 @@ const App = () => {
 
   const openModal = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
-    setModalIsOpen(true);
+    setSelectedAppointment(appointment);
+    setDetailModalIsOpen(true);
   };
 
-  const closeModal = () => {
-    setModalIsOpen(false);
+  const openCreateModal = () => {
+    setCreateModalIsOpen(true);
   };
 
-  const OpenCreateAppointmentModal = () => {
-    setModalIsOpen(true);
+  const openEditModal = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setEditModalIsOpen(true)
+  }
+
+  const closeDetailModal = () => {
+    setDetailModalIsOpen(false);
+  };
+
+  const closeCreateModal = () => {
+    setCreateModalIsOpen(false);
+  };
+
+  const closeEditModal = () => {
+    setEditModalIsOpen(false)
   }
 
   // フォームの入力値を更新する
@@ -125,7 +142,12 @@ const App = () => {
   // テーブルの表示
   return (
     <div>
-      <button onClick={OpenCreateAppointmentModal}>新規登録</button>
+      <button
+        onClick={openCreateModal}
+        style={buttonStyle}
+      >
+        新規登録
+      </button>
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -163,15 +185,24 @@ const App = () => {
               </a></td>
               <button
                 onClick={() => openModal(appointment)}
-                style={buttonStyle}>詳細情報</button>
+                style={buttonStyle}
+              >
+                詳細情報
+              </button>
+              <button
+                onClick={() => openEditModal(appointment)}
+                style={buttonStyle}
+              >
+                編集
+              </button>
               </tr>
             ))}
           </tbody>
         </table>
       )}
       <Modal
-      isOpen={modalIsOpen}
-      onRequestClose={closeModal}
+      isOpen={detailModalIsOpen}
+      onRequestClose={closeDetailModal}
       style={customStyles}
       contentLabel='Appointment Detail'
       >
@@ -183,27 +214,44 @@ const App = () => {
             <p>商談履歴：{selectedAppointment.history}</p>
             <p>ToDoリスト</p>
             <p>目標数値：¥{selectedAppointment.goal.toLocaleString()}</p>
-            <button onClick={closeModal}>閉じる</button>
+            <button onClick={closeDetailModal}>閉じる</button>
           </div>
         )}
       </Modal>
-        {/* 新規登録フォーム */}
+      {/* 新規登録フォーム */}
       <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
+        isOpen={createModalIsOpen}
+        onRequestClose={closeCreateModal}
         style={customStyles}
         contentLabel='CreateAppointment'
       >
       <AppointmentForm
         setAppointments={setAppointments}
-        closeModal={closeModal}
+        closeModal={closeCreateModal}
       />
       </Modal>
+      {/* 編集モーダル */}
+      <Modal
+        isOpen={editModalIsOpen}
+        onRequestClose={closeEditModal}
+        style={customStyles}
+        contentLabel='EditAppointment'
+      >
+        {selectedAppointment && (
+          <EditAppointmentForm
+            appointment={selectedAppointment}
+            setAppointments={setAppointments}
+            closeModal={closeEditModal}
+          />
+        )}
+      </Modal>
+
     </div>
   );
 };
 
 export default App;
+Modal.setAppElement('#root')
 
 const bodyStyle = {
   fontSize: '0.8rem',
@@ -233,7 +281,7 @@ const customStyles = {
     border: '1px solid #ccc',
     background: '#fff',
     overflow: 'auto',
-    webkitOverflowScrolling: 'touch',
+    WebkitOverflowScrolling: 'touch' as 'auto' | 'touch',
     borderRadius: '4px',
     outline: 'none',
     padding: '40px'

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -31,8 +33,11 @@ type Appointment struct {
 
 func setupCORS(w *http.ResponseWriter, req *http.Request) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-	(*w).Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	(*w).Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT")
 	(*w).Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+	if (*req).Method == "OPTIONS" {
+		return
+	}
 }
 
 func getAppointments(w http.ResponseWriter, r *http.Request) {
@@ -83,17 +88,11 @@ func getAppointments(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	json.NewEncoder(w).Encode(appointments)
 }
 
 func createAppointment(w http.ResponseWriter, r *http.Request) {
 	setupCORS(&w, r)
-	if (*r).Method == "OPTIONS" {
-		return
-	}
 
 	var newAppointment Appointment
 	err := json.NewDecoder(r.Body).Decode(&newAppointment)
@@ -157,9 +156,91 @@ func createAppointment(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(newAppointment)
 }
 
+func updateAppointment(w http.ResponseWriter, r *http.Request) {
+	setupCORS(&w, r)
+
+	pathSegments := strings.Split(r.URL.Path, "/")
+	if len(pathSegments) < 3 {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	var updateAppointment Appointment
+	err := json.NewDecoder(r.Body).Decode(&updateAppointment)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	db, err := sql.Open("mysql", "root:rootroot@/management_system")
+	if err != nil {
+		log.Printf("Database connection failed: %v", err)
+		http.Error(w, "Database connection failed", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	appointmentIDStr := pathSegments[2]
+	appointmentID, err := strconv.Atoi(appointmentIDStr)
+	if err != nil {
+		http.Error(w, "Invalid appointment ID", http.StatusBadRequest)
+		return
+	}
+
+	stmt, err := db.Prepare(`
+		UPDATE appointments SET
+			NextAppointmentDate = ?,
+			ContractedSales = ?,
+			CurrentContractCount = ?,
+			CompanyName = ?,
+			CompanyNameKana = ?,
+			Capital = ?,
+			EmployeesCount = ?,
+			AppointmentDepartment = ?,
+			ContactPersonName = ?,
+			ContactPersonKana = ?,
+			URL = ?,
+			Place = ?,
+			AppointmentData = ?,
+			History = ?,
+			Goal = ?
+		WHERE ID = ?
+	`)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		updateAppointment.NextAppointmentDate,
+		updateAppointment.ContractedSales,
+		updateAppointment.CurrentContractCount,
+		updateAppointment.CompanyName,
+		updateAppointment.CompanyNameKana,
+		updateAppointment.Capital,
+		updateAppointment.EmployeesCount,
+		updateAppointment.AppointmentDepartment,
+		updateAppointment.ContactPersonName,
+		updateAppointment.ContactPersonKana,
+		updateAppointment.URL,
+		updateAppointment.Place,
+		updateAppointment.AppointmentData,
+		updateAppointment.History,
+		updateAppointment.Goal,
+		appointmentID,
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(updateAppointment)
+}
+
 func main() {
 	http.HandleFunc("/", getAppointments)
 	http.HandleFunc("/appointments/create", createAppointment)
+	http.HandleFunc("/appointments", updateAppointment)
 	fmt.Println("Server is running on port 8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

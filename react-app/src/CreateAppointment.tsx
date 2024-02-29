@@ -89,8 +89,9 @@ const AppointmentForm: React.FC<Props> = ({ setAppointments, closeModal }) => {
 
     try {
       const response = await axios.post('http://localhost:8080/appointments/create', formData);
-    // 成功時の処理: 新規予約を予約リストに追加
-    setAppointments(prevAppointments => [...prevAppointments, response.data]);
+      // 成功時の処理: 新規予約を予約リストに追加
+      setAppointments(prevAppointments => [...prevAppointments, response.data]);
+      closeModal();
 
     }  catch (error) {
       const e = error as Error | AxiosError; // AxiosErrorをimportする必要があります。
