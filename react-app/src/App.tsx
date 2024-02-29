@@ -163,7 +163,6 @@ const App = () => {
         setEditGoal(false);
       } catch (error) {
         console.error('Error updating goal:', error);
-        // エラーハンドリングをここに追加
       }
     } else {
       alert('入力された目標数値が無効です。');
