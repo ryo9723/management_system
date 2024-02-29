@@ -238,7 +238,17 @@ const App = () => {
       >
         {selectedAppointment && (
           <div>
-            <h2>詳細データ</h2>
+            <h2>詳細情報</h2>
+            <p>次回アポ日付：{selectedAppointment.nextAppointmentDate}</p>
+            <p>契約した売上：{selectedAppointment.contractedSales}</p>
+            <p>現在の契約本数：{selectedAppointment.currentContractCount}</p>
+            <p>会社名：{selectedAppointment.companyName}</p>
+            <p>ふりがな：{selectedAppointment.companyNameKana}</p>
+            <p>資本金：{selectedAppointment.capital}</p>
+            <p>従業員数：{selectedAppointment.employeesCount}</p>
+            <p>アポ先部署：{selectedAppointment.appointmentDepartment}</p>
+            <p>担当者名：{selectedAppointment.contactPersonName}</p>
+            <p>ふりがな：{selectedAppointment.contactPersonKana}</p>
             <p>会社所在地：{selectedAppointment.place}</p>
             <p>アポ内容：{selectedAppointment.appointmentData}</p>
             <p>商談履歴：{selectedAppointment.history}</p>
@@ -251,8 +261,9 @@ const App = () => {
             </div>
           ) : (
             <div>
-              <p>目標数値：¥{selectedAppointment.goal.toLocaleString()}</p>
-              <button onClick={startEditGoal}>編集</button>
+              <p>目標数値：¥{selectedAppointment.goal.toLocaleString()}
+                <button onClick={startEditGoal}>編集</button>
+              </p>
             </div>
           )}
             <p>目標達成まで残り¥{(selectedAppointment.goal - selectedAppointment.contractedSales).toLocaleString()}</p>
