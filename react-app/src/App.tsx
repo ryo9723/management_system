@@ -11,6 +11,8 @@ const App = () => {
   const [detailModalIsOpen, setDetailModalIsOpen] = useState<boolean>(false);
   const [createModalIsOpen, setCreateModalIsOpen] = useState<boolean>(false);
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
+  const [editGoal, setEditGoal] = useState(false);
+  const [goalValue, setGoalValue] = useState('');
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -71,8 +73,16 @@ const App = () => {
     setEditModalIsOpen(false)
   }
 
+  const startEditGoal = () => {
+    if (selectedAppointment) {
+      setGoalValue(selectedAppointment.goal.toString());
+      setEditGoal(true);
+    }
+  };
+
   // フォームの入力値を更新する
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setGoalValue(e.target.value);
     const { name, value } = e.target;
     setForm(prevForm => ({
       ...prevForm,
@@ -136,6 +146,27 @@ const App = () => {
         // 非Axiosエラーの場合
         console.error('Error', e.message);
       }
+    }
+  };
+
+  const saveGoal = async () => {
+    const updatedGoal = parseInt(goalValue, 10);
+    if (!isNaN(updatedGoal) && selectedAppointment) {
+      try {
+        const response = await axios.put(`http://localhost:8080/appointments/${selectedAppointment.id}`, {
+          ...selectedAppointment,
+          goal: updatedGoal
+        });
+        // 予約リストを更新する
+        setAppointments(prevAppointments => prevAppointments.map(a => a.id === selectedAppointment.id ? {...a, goal: updatedGoal} : a));
+        setSelectedAppointment({...selectedAppointment, goal: updatedGoal});
+        setEditGoal(false);
+      } catch (error) {
+        console.error('Error updating goal:', error);
+        // エラーハンドリングをここに追加
+      }
+    } else {
+      alert('入力された目標数値が無効です。');
     }
   };
 
@@ -213,7 +244,19 @@ const App = () => {
             <p>アポ内容：{selectedAppointment.appointmentData}</p>
             <p>商談履歴：{selectedAppointment.history}</p>
             <p>ToDoリスト</p>
-            <p>目標数値：¥{selectedAppointment.goal.toLocaleString()}</p>
+            {editGoal ? (
+            <div>
+              <input type="number" value={goalValue} onChange={handleChange} />
+              <button onClick={saveGoal}>保存</button>
+              <button onClick={() => setEditGoal(false)}>キャンセル</button>
+            </div>
+          ) : (
+            <div>
+              <p>目標数値：¥{selectedAppointment.goal.toLocaleString()}</p>
+              <button onClick={startEditGoal}>編集</button>
+            </div>
+          )}
+            <p>目標達成まで残り¥{(selectedAppointment.goal - selectedAppointment.contractedSales).toLocaleString()}</p>
             <button onClick={closeDetailModal}>閉じる</button>
           </div>
         )}
