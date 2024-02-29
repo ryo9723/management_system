@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Appointment } from './types';
 import { AxiosError } from 'axios';
+import { Appointment } from './types';
 import Modal from 'react-modal';
+import './Style.css'
+
 import AppointmentForm from './CreateAppointment';
 import EditAppointmentForm from './EditAppointment';
+import Button from './Button'
 
 const App = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -172,12 +175,11 @@ const App = () => {
   // テーブルの表示
   return (
     <div>
-      <button
+      <Button
+        text='新規登録'
         onClick={openCreateModal}
-        style={buttonStyle}
-      >
-        新規登録
-      </button>
+        className='buttonStyle'
+      />
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -213,18 +215,16 @@ const App = () => {
                 <td><a href={appointment.url} target="_blank" rel="noopener noreferrer">
                 {appointment.url}
               </a></td>
-              <button
+              <Button
+                text='詳細情報'
                 onClick={() => openModal(appointment)}
-                style={buttonStyle}
-              >
-                詳細情報
-              </button>
-              <button
+                className='buttonStyle'
+              />
+              <Button
+                text='編集'
                 onClick={() => openEditModal(appointment)}
-                style={buttonStyle}
-              >
-                編集
-              </button>
+                className='buttonStyle'
+              />
               </tr>
             ))}
           </tbody>
@@ -240,13 +240,13 @@ const App = () => {
           <div>
             <h2>詳細情報</h2>
             <p>次回アポ日付：{selectedAppointment.nextAppointmentDate}</p>
-            <p>契約した売上：{selectedAppointment.contractedSales}</p>
-            <p>現在の契約本数：{selectedAppointment.currentContractCount}</p>
+            <p>契約した売上：¥{selectedAppointment.contractedSales.toLocaleString()}</p>
+            <p>現在の契約本数：{selectedAppointment.currentContractCount}本</p>
             <p>会社名：{selectedAppointment.companyName}</p>
             <p>ふりがな：{selectedAppointment.companyNameKana}</p>
-            <p>資本金：{selectedAppointment.capital}</p>
-            <p>従業員数：{selectedAppointment.employeesCount}</p>
-            <p>アポ先部署：{selectedAppointment.appointmentDepartment}</p>
+            <p>資本金：¥{selectedAppointment.capital.toLocaleString()}</p>
+            <p>従業員数：{selectedAppointment.employeesCount}人</p>
+            <p>アポ先部署：{selectedAppointment.appointmentDepartment}部</p>
             <p>担当者名：{selectedAppointment.contactPersonName}</p>
             <p>ふりがな：{selectedAppointment.contactPersonKana}</p>
             <p>会社所在地：{selectedAppointment.place}</p>
@@ -262,12 +262,22 @@ const App = () => {
           ) : (
             <div>
               <p>目標数値：¥{selectedAppointment.goal.toLocaleString()}
-                <button onClick={startEditGoal}>編集</button>
+                <button
+                  onClick={startEditGoal}
+                  style={{marginLeft: '10px'}}
+                >
+                  編集
+                </button>
               </p>
             </div>
           )}
             <p>目標達成まで残り¥{(selectedAppointment.goal - selectedAppointment.contractedSales).toLocaleString()}</p>
-            <button onClick={closeDetailModal}>閉じる</button>
+            <button
+              onClick={closeDetailModal}
+              style={{marginTop: '15px'}}
+            >
+              閉じる
+            </button>
           </div>
         )}
       </Modal>
